@@ -29,5 +29,9 @@ namespace workaem
         {
             Close();
         }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Разработчик: Рыбалка Евгений и Пантелеев Александр\nГруппа: Исппк-22-1", "Информация о разработчике", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
     }
 }
