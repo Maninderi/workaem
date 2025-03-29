@@ -1,96 +1,315 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace workaem
 {
     public partial class MainWindow : Window
     {
-        public partial class MainWindow : Window
+        private Dictionary<(int, int), string> board;
+        private bool isComputerGame;
+        private bool isGameActive;
+        private string currentPlayer;
+        private Random random;
+        private const int WIN_LENGTH = 3;
+        private int minRow = -5, maxRow = 5;
+        private int minCol = -5, maxCol = 5;
+
+        public MainWindow()
         {
-            private string currentPlayer = "X";
-            private string[,] board = new string[3, 3];
+            InitializeComponent();
+            random = new Random();
+            InitializeGame();
+        }
 
-            public MainWindow()
+        private void InitializeGame()
+        {
+            board = new Dictionary<(int, int), string>();
+            isGameActive = false;
+            currentPlayer = "X";
+            InitializeGrid();
+        }
+
+        private void InitializeGrid()
+        {
+            GameGrid.Children.Clear();
+            GameGrid.RowDefinitions.Clear();
+            GameGrid.ColumnDefinitions.Clear();
+
+            // Создаем строки и столбцы
+            for (int i = minRow; i <= maxRow; i++)
             {
-                InitializeComponent();
+                GameGrid.RowDefinitions.Add(new RowDefinition());
+                GameGrid.ColumnDefinitions.Add(new ColumnDefinition());
             }
 
-            private void Button_Click(object sender, RoutedEventArgs e)
+            // Создаем кнопки
+            for (int i = minRow; i <= maxRow; i++)
             {
-                Button button = sender as Button;
-
-                if (button.Content == null)
+                for (int j = minCol; j <= maxCol; j++)
                 {
-                    button.Content = currentPlayer;
-                    int row = Grid.GetRow(button);
-                    int col = Grid.GetColumn(button);
-                    board[row, col] = currentPlayer;
+                    Button button = new Button();
+                    // Используем буквы m для отрицательных чисел
+                    string rowName = i < 0 ? $"m{Math.Abs(i)}" : i.ToString();
+                    string colName = j < 0 ? $"m{Math.Abs(j)}" : j.ToString();
+                    button.Name = $"Button{rowName}_{colName}";
+                    button.Tag = new Tuple<int, int>(i, j); // Сохраняем координаты в Tag
+                    button.Click += Button_Click;
+                    Grid.SetRow(button, i - minRow);
+                    Grid.SetColumn(button, j - minCol);
+                    GameGrid.Children.Add(button);
+                }
+            }
+        }
 
-                    if (CheckForWinner())
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isGameActive) return;
+
+            Button button = (Button)sender;
+            var coordinates = (Tuple<int, int>)button.Tag;
+            int row = coordinates.Item1;
+            int col = coordinates.Item2;
+
+            if (!board.ContainsKey((row, col)))
+            {
+                MakeMove(row, col);
+
+                if (isComputerGame && isGameActive)
+                {
+                    await Task.Delay(500);
+                    MakeComputerMove();
+                }
+            }
+        }
+
+        private void MakeMove(int row, int col)
+        {
+            board[(row, col)] = currentPlayer;
+            Button button = FindButton(row, col);
+            button.Content = currentPlayer;
+
+            if (CheckWinner(row, col))
+            {
+                MessageBox.Show($"Победил игрок {currentPlayer}!");
+                isGameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer == "X" ? "O" : "X";
+            UpdateStatus();
+            
+            // Расширяем поле при необходимости
+            if (ShouldExpandGrid(row, col))
+            {
+                ExpandGrid();
+            }
+        }
+
+        private bool ShouldExpandGrid(int row, int col)
+        {
+            return row == minRow || row == maxRow || col == minCol || col == maxCol;
+        }
+
+        private void ExpandGrid()
+        {
+            minRow--;
+            maxRow++;
+            minCol--;
+            maxCol++;
+            InitializeGrid();
+            // Восстанавливаем существующие ходы
+            foreach (var move in board)
+            {
+                Button button = FindButton(move.Key.Item1, move.Key.Item2);
+                if (button != null)
+                {
+                    button.Content = move.Value;
+                }
+            }
+        }
+
+        private void MakeComputerMove()
+        {
+            // Поиск выигрышного хода
+            foreach (var cell in GetEmptyCells())
+            {
+                board[cell] = "O";
+                if (CheckWinner(cell.Item1, cell.Item2))
+                {
+                    MakeMove(cell.Item1, cell.Item2);
+                    return;
+                }
+                board.Remove(cell);
+            }
+
+            // Блокировка выигрышного хода противника
+            foreach (var cell in GetEmptyCells())
+            {
+                board[cell] = "X";
+                if (CheckWinner(cell.Item1, cell.Item2))
+                {
+                    board.Remove(cell);
+                    MakeMove(cell.Item1, cell.Item2);
+                    return;
+                }
+                board.Remove(cell);
+            }
+
+            // Ход рядом с существующими символами
+            var nearMoves = GetNearMoves();
+            if (nearMoves.Count > 0)
+            {
+                var move = nearMoves[random.Next(nearMoves.Count)];
+                MakeMove(move.Item1, move.Item2);
+                return;
+            }
+
+            // Случайный ход в центре поля
+            int row = random.Next(-2, 3);
+            int col = random.Next(-2, 3);
+            while (board.ContainsKey((row, col)))
+            {
+                row = random.Next(-2, 3);
+                col = random.Next(-2, 3);
+            }
+            MakeMove(row, col);
+        }
+
+        private List<(int, int)> GetEmptyCells()
+        {
+            var emptyCells = new List<(int, int)>();
+            for (int i = minRow; i <= maxRow; i++)
+            {
+                for (int j = minCol; j <= maxCol; j++)
+                {
+                    if (!board.ContainsKey((i, j)))
                     {
-                        MessageBox.Show($"Игрок {currentPlayer} выиграл!");
-                        ResetGame();
-                    }
-                    else
-                    {
-                        currentPlayer = currentPlayer == "X" ? "O" : "X";
+                        emptyCells.Add((i, j));
                     }
                 }
             }
+            return emptyCells;
+        }
 
-            private bool CheckForWinner()
+        private List<(int, int)> GetNearMoves()
+        {
+            var nearMoves = new List<(int, int)>();
+            var directions = new[] { (-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1) };
+
+            foreach (var pos in board.Keys)
             {
-                // Проверка строк, столбцов и диагоналей
-                for (int i = 0; i < 3; i++)
+                foreach (var dir in directions)
                 {
-                    if (board[i, 0] == currentPlayer && board[i, 1] == currentPlayer && board[i, 2] == currentPlayer)
-                        return true;
-                    if (board[0, i] == currentPlayer && board[1, i] == currentPlayer && board[2, i] == currentPlayer)
-                        return true;
-                }
-                if (board[0, 0] == currentPlayer && board[1, 1] == currentPlayer && board[2, 2] == currentPlayer)
-                    return true;
-                if (board[0, 2] == currentPlayer && board[1, 1] == currentPlayer && board[2, 0] == currentPlayer)
-                    return true;
-
-                return false;
-            }
-
-            private void ResetGame()
-            {
-                currentPlayer = "X";
-                for (int i = 0; i < 3; i++)
-                {
-                    for (int j = 0; j < 3; j++)
+                    var newPos = (pos.Item1 + dir.Item1, pos.Item2 + dir.Item2);
+                    if (!board.ContainsKey(newPos))
                     {
-                        board[i, j] = null;
-                        Button button = (Button)FindName($"Button{i}{j}");
-                        button.Content = null;
+                        nearMoves.Add(newPos);
                     }
                 }
             }
+            return nearMoves;
+        }
 
-            private void Exit_Click(object sender, RoutedEventArgs e)
+        private bool CheckWinner(int row, int col)
+        {
+            var directions = new[] { (1, 0), (0, 1), (1, 1), (1, -1) };
+            foreach (var dir in directions)
+            {
+                int count = 1;
+                count += CountInDirection(row, col, dir.Item1, dir.Item2);
+                count += CountInDirection(row, col, -dir.Item1, -dir.Item2);
+                if (count >= WIN_LENGTH) return true;
+            }
+            return false;
+        }
+
+        private int CountInDirection(int row, int col, int dRow, int dCol)
+        {
+            int count = 0;
+            int r = row + dRow;
+            int c = col + dCol;
+            string player = board[(row, col)];
+
+            while (board.TryGetValue((r, c), out string value) && value == player)
+            {
+                count++;
+                r += dRow;
+                c += dCol;
+            }
+            return count;
+        }
+
+        private Button FindButton(int row, int col)
+        {
+            return (Button)GameGrid.Children.Cast<UIElement>()
+                .FirstOrDefault(e => e is Button button && 
+                    ((Tuple<int, int>)button.Tag).Item1 == row && 
+                    ((Tuple<int, int>)button.Tag).Item2 == col);
+        }
+
+        private void UpdateStatus()
+        {
+            StatusText.Text = $"Ход игрока: {currentPlayer}";
+        }
+
+        private void PlayVsComputer_Click(object sender, RoutedEventArgs e)
+        {
+            InitializeGame();
+            isComputerGame = true;
+            isGameActive = true;
+            currentPlayer = "O"; // Компьютер ходит первым
+            UpdateStatus();
+            MakeComputerMove();
+        }
+
+        private void PlayVsPlayer_Click(object sender, RoutedEventArgs e)
+        {
+            InitializeGame();
+            isComputerGame = false;
+            isGameActive = true;
+            UpdateStatus();
+        }
+
+        private void NewGame_Click(object sender, RoutedEventArgs e)
+        {
+            if (isComputerGame)
+                PlayVsComputer_Click(sender, e);
+            else
+                PlayVsPlayer_Click(sender, e);
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
-        private void button1_Click(object sender, EventArgs e)
+
+        private void Rules_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Разработчик: Рыбалка Евгений и Пантелеев Александр\nГруппа: Исппк-22-1", "Информация о разработчике", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(
+                "Правила игры:\n\n" +
+                "1. Игроки по очереди ставят на свободные клетки поля знаки (один всегда крестики, другой всегда нолики).\n" +
+                "2. Первый, выстроивший в ряд 3 своих фигуры по вертикали, горизонтали или диагонали, выигрывает.\n" +
+                "3. Поле бесконечное - оно расширяется при достижении края.\n" +
+                "4. В игре против компьютера игрок всегда ходит вторым.",
+                "Правила игры",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
-
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(
+                "Крестики-нолики\n\n" +
+                "Версия: 1.0\n" +
+                "Бесконечное поле\n" +
+                "Игра против компьютера или другого игрока",
+                "О программе",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
     }
 }

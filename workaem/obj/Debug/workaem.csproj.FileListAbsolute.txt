@@ -1,0 +1,15 @@
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\bin\Debug\workaem.exe.config
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\bin\Debug\workaem.exe
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\bin\Debug\workaem.pdb
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\workaem.csproj.AssemblyReference.cache
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\MainWindow.g.cs
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\App.g.cs
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\workaem_MarkupCompile.cache
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\workaem_MarkupCompile.lref
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\MainWindow.baml
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\workaem.g.resources
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\workaem.Properties.Resources.resources
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\workaem.csproj.GenerateResource.cache
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\workaem.csproj.CoreCompileInputs.cache
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\workaem.exe
+C:\Users\home\Desktop\КРЕСТИКИ НОЛИКИ ПРОЕКТ\workaem\workaem\obj\Debug\workaem.pdb

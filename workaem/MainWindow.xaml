@@ -5,59 +5,67 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:workaem"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-  
+        Title="Крестики-нолики" Height="600" Width="800">
     <Grid>
-        <Menu>
-            <MenuItem Header="Играть">
-                <MenuItem Header="Против компьютера"/>
-                <MenuItem Header="1 на 1"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0">
+            <MenuItem Header="Игра">
+                <MenuItem Header="Новая игра" Click="NewGame_Click"/>
+                <MenuItem Header="Против компьютера" Click="PlayVsComputer_Click"/>
+                <MenuItem Header="Против игрока" Click="PlayVsPlayer_Click"/>
+                <Separator/>
+                <MenuItem Header="Выход" Click="Exit_Click"/>
             </MenuItem>
-            <MenuItem Header="Правила игры"/>
-            <MenuItem Header="Информация" Click="button1_Click"/>
-            <MenuItem Header="Выход" Click="Exit_Click"/>
-          
+            <MenuItem Header="Справка">
+                <MenuItem Header="Правила игры" Click="Rules_Click"/>
+                <MenuItem Header="О программе" Click="About_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid Grid.Row="1" Margin="20">
             <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="Крестики-Нолики" FontSize="24" FontWeight="Bold"
-                     HorizontalAlignment="Center" Margin="10"/>
+            <TextBlock x:Name="StatusText" 
+                       Text="Выберите режим игры в меню 'Игра'" 
+                       FontSize="20" 
+                       HorizontalAlignment="Center" 
+                       Margin="0,0,0,20"/>
 
-            <UniformGrid Grid.Row="1" Rows="3" Columns="3" Margin="10">
-            <Button Name="Button00" Style="{StaticResource GameButtonStyle}" Click="Button_Click"/>
-            <Button Name="Button01" Style="{StaticResource GameButtonStyle}" Click="Button_Click"/>
-            <Button Name="Button02" Style="{StaticResource GameButtonStyle}" Click="Button_Click"/>
-            <Button Name="Button10" Style="{StaticResource GameButtonStyle}" Click="Button_Click"/>
-            <Button Name="Button11" Style="{StaticResource GameButtonStyle}" Click="Button_Click"/>
-            <Button Name="Button12" Style="{StaticResource GameButtonStyle}" Click="Button_Click"/>
-            <Button Name="Button20" Style="{StaticResource GameButtonStyle}" Click="Button_Click"/>
-            <Button Name="Button21" Style="{StaticResource GameButtonStyle}" Click="Button_Click"/>
-            <Button Name="Button22" Style="{StaticResource GameButtonStyle}" Click="Button_Click"/>
-          </UniformGrid>
-        </Menu>
+            <ScrollViewer Grid.Row="1" 
+                         HorizontalScrollBarVisibility="Auto" 
+                         VerticalScrollBarVisibility="Auto">
+                <Grid x:Name="GameGrid">
+                    <!-- Динамическое добавление кнопок -->
+                </Grid>
+            </ScrollViewer>
+        </Grid>
     </Grid>
-  
-  <Window.Resources>
-    <Style x:Key="GameButtonStyle" TargetType="Button">
-      <Setter Property="FontSize" Value="36"/>
-      <Setter Property="Background" Value="#FFDDDDDD"/>
-      <Setter Property="Margin" Value="5"/>
-      <Setter Property="BorderBrush" Value="#FF888888"/>
-      <Setter Property="BorderThickness" Value="2"/>
-      <Setter Property="Cursor" Value="Hand"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="Foreground" Value="#FF333333"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Style.Triggers>
-        <Trigger Property="IsMouseOver" Value="True">
-          <Setter Property="Background" Value="#FFCCCCCC"/>
-        </Trigger>
-        <Trigger Property="IsPressed" Value="True">
-          <Setter Property="Background" Value="#FFAAAAAA"/>
-        </Trigger>
-      </Style.Triggers>
-    </Style>
-  </Window.Resources>
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="FontSize" Value="48"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Width" Value="60"/>
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF888888"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFCCCCCC"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FFAAAAAA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 </Window>
